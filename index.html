@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>幻悟紊火録 — 暗黒辞書</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg:           #060402;
+            --surface:      #0d0a07;
+            --gold:         #c4aa7a;
+            --gold-bright:  #e8d5a3;
+            --gold-dim:     #7a6545;
+            --crimson:      #8b1a1a;
+            --crimson-mid:  #6b1515;
+            --crimson-dark: #3d0d0d;
+            --border:       #2a1a0a;
+            --muted:        #5a4a30;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--gold);
+            font-family: '游明朝', 'Yu Mincho', 'HiraMinProN-W3', 'Times New Roman', serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ── HEADER ─────────────────────────── */
+        .header {
+            position: relative;
+            text-align: center;
+            overflow: hidden;
+            min-height: 420px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header-bg {
+            position: absolute;
+            inset: 0;
+            background-image: url('images/幻悟紊火録.jpg');
+            background-size: cover;
+            background-position: center 30%;
+            filter: sepia(20%) brightness(0.5) contrast(1.1);
+        }
+
+        .header-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                to bottom,
+                rgba(6,4,2,0.55) 0%,
+                rgba(6,4,2,0.45) 50%,
+                rgba(6,4,2,0.9) 100%
+            );
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 2;
+            padding: 60px 24px 52px;
+            width: 100%;
+        }
+
+        .title-ja {
+            font-size: clamp(3rem, 11vw, 6.5rem);
+            font-weight: 900;
+            letter-spacing: 0.28em;
+            background: linear-gradient(160deg, #9b2020 0%, #c4aa7a 40%, #f0e0b0 58%, #c4aa7a 75%, #9b2020 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+            margin-bottom: 14px;
+            text-shadow: none;
+        }
+
+        .title-reading {
+            font-size: 0.88rem;
+            letter-spacing: 0.65em;
+            color: #a08060;
+            margin-bottom: 22px;
+        }
+
+        .title-sub {
+            font-size: 0.8rem;
+            color: #806040;
+            letter-spacing: 0.3em;
+            border-top: 1px solid rgba(139,90,40,0.4);
+            border-bottom: 1px solid rgba(139,90,40,0.4);
+            padding: 10px 28px;
+            display: inline-block;
+            margin-bottom: 40px;
+        }
+
+        .epigraph {
+            font-size: 0.88rem;
+            color: #c4aa7a;
+            line-height: 2.4;
+            letter-spacing: 0.12em;
+            font-style: italic;
+            margin-bottom: 40px;
+            text-shadow: 0 1px 8px rgba(0,0,0,0.8);
+        }
+
+        /* ── SEARCH ─────────────────────────── */
+        .search-wrap {
+            max-width: 520px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted);
+            font-size: 0.95rem;
+            pointer-events: none;
+        }
+
+        #search {
+            width: 100%;
+            background: rgba(13,10,7,0.85);
+            border: 1px solid rgba(139,90,40,0.5);
+            color: var(--gold);
+            padding: 14px 16px 14px 46px;
+            font-family: inherit;
+            font-size: 0.92rem;
+            outline: none;
+            letter-spacing: 0.08em;
+            transition: border-color 0.2s;
+            -webkit-appearance: none;
+            border-radius: 0;
+            backdrop-filter: blur(4px);
+        }
+
+        #search:focus { border-color: var(--crimson-mid); }
+        #search::placeholder { color: var(--muted); }
+
+        .result-count {
+            font-size: 0.7rem;
+            color: var(--muted);
+            letter-spacing: 0.45em;
+            text-align: center;
+            margin-top: 12px;
+            min-height: 1.2em;
+        }
+
+        /* ── GRID ───────────────────────────── */
+        main { max-width: 1440px; margin: 0 auto; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            border-top: 1px solid var(--border);
+            border-left: 1px solid var(--border);
+        }
+
+        /* ── CARD ───────────────────────────── */
+        .card {
+            border-right: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            position: relative;
+            background: var(--bg);
+            transition: background 0.2s;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card:hover { background: #0c0905; }
+
+        .card-img-wrap {
+            width: 100%;
+            position: relative;
+            flex-shrink: 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .card-img-wrap img {
+            width: 100%;
+            height: auto;
+            display: block;
+            filter: sepia(15%) contrast(1.05) brightness(0.85);
+            transition: filter 0.3s;
+        }
+
+        .card:hover .card-img-wrap img {
+            filter: sepia(10%) contrast(1.08) brightness(0.9);
+        }
+
+        .card-img-placeholder {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #0d0a07 0%, #1a0f07 50%, #0d0a07 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: var(--crimson-dark);
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .card-img-gradient { display: none; }
+
+        .card-body {
+            padding: 24px 26px 42px;
+            flex: 1;
+        }
+
+        .card-num {
+            font-size: 0.62rem;
+            color: var(--crimson-mid);
+            letter-spacing: 0.45em;
+            margin-bottom: 10px;
+        }
+
+        .card-name {
+            font-size: 1.9rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            color: var(--gold-bright);
+            line-height: 1.2;
+            margin-bottom: 6px;
+        }
+
+        .card-reading {
+            font-size: 0.7rem;
+            color: var(--muted);
+            letter-spacing: 0.48em;
+            margin-bottom: 18px;
+        }
+
+        .card-line {
+            width: 32px;
+            height: 1px;
+            background: linear-gradient(to right, var(--crimson), transparent);
+            margin-bottom: 18px;
+        }
+
+        .card-giji {
+            font-size: 0.76rem;
+            color: var(--muted);
+            letter-spacing: 0.15em;
+            text-decoration: line-through;
+            margin-bottom: 4px;
+        }
+
+        .card-shinji {
+            font-size: 0.88rem;
+            color: var(--gold);
+            letter-spacing: 0.15em;
+            margin-bottom: 14px;
+        }
+
+        .card-shinji::before {
+            content: '真字  ';
+            font-size: 0.62rem;
+            color: var(--crimson);
+            letter-spacing: 0.35em;
+        }
+
+        .card-def {
+            font-size: 0.79rem;
+            color: var(--gold-dim);
+            line-height: 1.9;
+            letter-spacing: 0.05em;
+        }
+
+        .card-stub {
+            font-size: 0.68rem;
+            color: var(--crimson-dark);
+            letter-spacing: 0.35em;
+        }
+
+        .card-arrow {
+            position: absolute;
+            bottom: 18px;
+            right: 22px;
+            font-size: 0.75rem;
+            color: var(--crimson);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .card:hover .card-arrow { opacity: 1; }
+
+        /* ── NO RESULTS ─────────────────────── */
+        .no-results {
+            display: none;
+            text-align: center;
+            padding: 80px 24px;
+            color: var(--muted);
+            font-size: 0.88rem;
+            letter-spacing: 0.35em;
+            border-top: 1px solid var(--border);
+        }
+
+        /* ── MODAL ──────────────────────────── */
+        .overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(2,1,0,0.93);
+            z-index: 300;
+            overflow-y: auto;
+            padding: 40px 20px 60px;
+        }
+
+        .overlay.open {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+        }
+
+        .modal {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            max-width: 760px;
+            width: 100%;
+            animation: mup 0.22s ease;
+        }
+
+        @keyframes mup {
+            from { opacity: 0; transform: translateY(12px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Modal image */
+        .m-img-wrap {
+            width: 100%;
+            position: relative;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .m-img-wrap img {
+            width: 100%;
+            height: auto;
+            display: block;
+            filter: sepia(10%) contrast(1.05) brightness(0.9);
+        }
+
+        .m-img-gradient { display: none; }
+
+        /* Modal header */
+        .m-head {
+            padding: 36px 52px 28px;
+            border-bottom: 1px solid var(--border);
+            position: relative;
+        }
+
+        .m-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 38px;
+            height: 38px;
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            font-size: 0.88rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .m-close:hover { border-color: var(--crimson); color: var(--crimson); }
+
+        .m-name {
+            font-size: clamp(2.6rem, 8vw, 4.2rem);
+            font-weight: 900;
+            letter-spacing: 0.15em;
+            background: linear-gradient(135deg, #8b1a1a, #c4aa7a, #e8d5a3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.1;
+            margin-bottom: 10px;
+        }
+
+        .m-reading {
+            font-size: 0.82rem;
+            color: var(--muted);
+            letter-spacing: 0.58em;
+        }
+
+        /* Modal reveal */
+        .m-reveal {
+            padding: 24px 52px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(6,4,2,0.5);
+        }
+
+        .m-label {
+            font-size: 0.62rem;
+            color: var(--muted);
+            letter-spacing: 0.55em;
+            margin-bottom: 16px;
+        }
+
+        .m-label.red { color: var(--crimson); }
+
+        .reveal-row {
+            display: flex;
+            align-items: baseline;
+            gap: 20px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .r-giji {
+            font-size: 1.6rem;
+            color: var(--muted);
+            text-decoration: line-through;
+            letter-spacing: 0.1em;
+            opacity: 0.6;
+        }
+
+        .r-sep { color: var(--crimson); font-size: 1rem; }
+
+        .r-shinji {
+            font-size: 1.8rem;
+            color: var(--gold-bright);
+            font-weight: 700;
+            letter-spacing: 0.1em;
+        }
+
+        .r-def {
+            font-size: 0.9rem;
+            color: var(--gold);
+            font-style: italic;
+            line-height: 1.9;
+            letter-spacing: 0.08em;
+            padding-left: 18px;
+            border-left: 2px solid var(--crimson-mid);
+        }
+
+        /* Modal content */
+        .m-section {
+            padding: 24px 52px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .m-section:last-child { border-bottom: none; }
+
+        .m-text {
+            font-size: 0.9rem;
+            color: var(--gold);
+            line-height: 2.3;
+            letter-spacing: 0.08em;
+            white-space: pre-line;
+        }
+
+        .m-gakuchu {
+            font-size: 0.87rem;
+            color: var(--gold-dim);
+            line-height: 2.3;
+            letter-spacing: 0.08em;
+            white-space: pre-line;
+            border-top: 1px solid var(--border);
+            padding-top: 22px;
+            margin-top: 22px;
+        }
+
+        .m-stub {
+            font-size: 0.8rem;
+            color: var(--muted);
+            letter-spacing: 0.35em;
+            text-align: center;
+            padding: 28px 0;
+        }
+
+        /* ── FOOTER ─────────────────────────── */
+        footer {
+            text-align: center;
+            padding: 52px 24px;
+            border-top: 1px solid var(--border);
+        }
+
+        .f-text {
+            font-size: 0.7rem;
+            color: var(--muted);
+            letter-spacing: 0.45em;
+            line-height: 2.5;
+        }
+
+        .f-quote {
+            font-size: 0.84rem;
+            color: var(--gold-dim);
+            font-style: italic;
+            letter-spacing: 0.12em;
+            line-height: 2.2;
+            margin-top: 28px;
+        }
+
+        @media (max-width: 620px) {
+            .m-head, .m-reveal, .m-section { padding-left: 22px; padding-right: 22px; }
+            .m-img-wrap { height: 220px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ══ HEADER ═══════════════════════════════ -->
+<header class="header">
+    <div class="header-bg"></div>
+    <div class="header-overlay"></div>
+    <div class="header-content">
+        <div class="title-ja">幻悟紊火録</div>
+        <div class="title-reading">げんごぶんかろく</div>
+        <div class="title-sub">言葉の奥に潜む異魂を掘り起こす暗黒辞書</div>
+        <div class="epigraph">
+            世界は事実でできているのではない。<br>
+            事実に与えられた名前でできている。
+        </div>
+        <div class="search-wrap">
+            <span class="search-icon">⌕</span>
+            <input type="text" id="search" placeholder="幻悟名・偽字・意味で検索…" autocomplete="off">
+        </div>
+        <div class="result-count" id="count"></div>
+    </div>
+</header>
+
+<!-- ══ GRID ══════════════════════════════════ -->
+<main>
+    <div class="grid" id="grid"></div>
+    <div class="no-results" id="noResults">— 該当する幻悟は記録されていない —</div>
+</main>
+
+<!-- ══ MODAL ══════════════════════════════════ -->
+<div class="overlay" id="overlay">
+    <div class="modal" id="modal">
+        <div id="mImgWrap"></div>
+        <div class="m-head">
+            <button class="m-close" id="closeBtn">✕</button>
+            <div class="m-name" id="mName"></div>
+            <div class="m-reading" id="mReading"></div>
+        </div>
+        <div id="mReveal"></div>
+        <div id="mContent"></div>
+    </div>
+</div>
+
+<!-- ══ FOOTER ════════════════════════════════ -->
+<footer>
+    <div class="f-text">
+        幻悟紊火録　　Takanori Kato<br>
+        存在したかもしれない文明の言語化石
+    </div>
+    <div class="f-quote">
+        名づけとは、支配である。<br>
+        だが、名づけ直すことは、解放である。
+    </div>
+</footer>
+
+<script>
+const P = 'images/';
+
+/* ━━━ 幻悟データベース ━━━━━━━━━━━━━━━━━━━━━━━━ */
+const DATA = [
+
+  // ─── 完全収録 ───────────────────────────────────
+
+  {
+    id: 1,
+    name: "罪重ね", reading: "つみかさね",
+    giji: null, img: P+'罪重ね.jpg',
+    def: "罪は、認められなかった瞬間から積み重なる。",
+    hassei:
+`ある代の王、臣の罪を知りながらこれを秘す。
+臣また己を守らんとして証人を遠ざけ、記録を焚き、民に沈黙を命ず。
+一つの罪、二つの罪を呼び、二つの罪、十の罪を呼ぶ。
+この時より、人々はこれを罪重ねと呼べり。`,
+    gakuchu: null
+  },
+
+  {
+    id: 2,
+    name: "赦射", reading: "しゃしゃ・ゆるしい",
+    giji: null, img: P+'赦射（しゃしゃ）.jpg',
+    def: "赦射とは、赦しの名を借りて未来を開く矢であると同時に、未来を撃ち抜く矢にもなり得る。",
+    hassei:
+`王、罪人を前に白銀の弓を引く。
+矢は胸を貫き、司祭は「赦された」と告げる。
+民は泣き、王を慈悲深き者と讃える。
+されど見ていた者は知る。
+赦しと呼ばれた矢が、人を殺したことを。`,
+    gakuchu: null
+  },
+
+  {
+    id: 3,
+    name: "惺燦", reading: "せいさん",
+    giji: null, img: P+'惺烬.jpg',
+    def: "惺燦とは、死を美しく飾り、責任の断絶を美談へ変える言葉である。",
+    hassei:
+`赦射を受けた罪人の死を、王国は処刑と呼ばなかった。
+清算とも呼ばなかった。
+その死を、心醒めて燦然と散ったものとして記録した。
+これを惺燦という。`,
+    gakuchu: null
+  },
+
+  {
+    id: 4,
+    name: "脊劍", reading: "せいけん",
+    giji: null, img: P+'脊劍.jpg',
+    def: "鉄の玉座が権力の椅子なら、脊劍は権力の脊髄である。",
+    hassei:
+`王国の中央に、聖剣あり。
+民はこれを神より授かりし刃と信ず。
+されど剣の芯には、歴代王の脊椎が継がれていた。
+王は死してなお国を支える。
+だがそれは、死後も国家に利用され続けるということでもあった。`,
+    gakuchu: null
+  },
+
+  {
+    id: 5,
+    name: "志灰", reading: "しはい",
+    giji: "支配", img: P+'志灰.jpg',
+    def: "支配とは、志が灰になった後も、人を動かそうとする亡霊である。",
+    hassei:
+`初代王に志あり。
+
+飢えし民を救わんとし、争う諸侯を鎮めんとし、子らが夜に泣かぬ国を作らんとした。
+
+王は法を作った。法は道を作った。道は人々を救った。
+
+されど、二代目は法を守るために人を罰した。
+三代目は罰を守るために兵を増やした。
+四代目は兵を養うために民を縛った。
+五代目は民を縛る理由を、初代王の志に求めた。
+
+かくして、火であった志は灰となる。
+
+灰は暖めぬ。灰は照らさぬ。されど灰は残り、人の肺を塞ぐ。
+
+この時より、支配の真字を志灰という。`,
+    gakuchu:
+`志灰とは、かつて誰かを救うために掲げられた志が、燃え尽き、形骸化し、他者を縛る制度へ変質した状態である。
+
+悪意から始まった支配ではない。
+
+むしろ、はじめは善意であった。救済であった。秩序であった。保護であった。
+
+だが、志は制度となり、制度は命令となり、命令は鎖となる。
+鎖だけが残った時、人々はなおそれを「志」と呼び続ける。
+
+最も恐ろしい支配者は、悪人とは限らない。
+最も恐ろしい支配は、かつて善意だったものの残骸でできている。`
+  },
+
+  {
+    id: 6,
+    name: "矛穿い", reading: "むはい",
+    giji: null, img: P+'矛穿い（むはい）.jpg',
+    def: "無敗とは栄光ではない。敗北できぬまま、武装解除できなくなった魂の病である。",
+    hassei:
+`ある将、百戦して敗れず。
+民は彼を無敗と讃えた。
+されど彼は眠る時も矛を離さず、宴にも鎧を脱がず、子の声にも敵襲を思う。
+勝ち続けたのではない。
+ただ、矛を脱ぐ術を失ったのだ。
+これを矛穿いという。`,
+    gakuchu: null
+  },
+
+  {
+    id: 7,
+    name: "匡", reading: "きょう",
+    giji: null, img: P+'王.jpg',
+    def: "王とは国を治める者。匡とは王の歪みを正す者。",
+    hassei:
+`王は国を治める者なり。
+されど王、必ずしも正しきにあらず。
+王が歪む時、これを正す者あり。
+民はこれを反逆者と呼び、王はこれを叛逆者と呼ぶ。
+されど後の世、学者はこれを匡と記す。`,
+    gakuchu: null
+  },
+
+  {
+    id: 8,
+    name: "恋禁䘏", reading: "れんきんじゅつ",
+    giji: "錬金術", img: P+'恋禁䘏.jpg',
+    def: "恋禁䘏とは、愛が術へ変じ、術が禁を破り、禁が世界を裂き、救済が破壊と区別できなくなる瞬間の名である。",
+    hassei:
+`恋とは、心が一つの名へ傾くことである。
+禁とは、越えてはならぬ境である。
+䘏とは、救恤である。困窮する者を救い上げようとすることである。
+
+ゆえに恋禁䘏とは、恋に狂い、禁断の法をもって、愛する者を救恤しようとする術である。
+
+それは、清き救済ではない。
+
+愛するが故に、禁を越える。
+愛するが故に、理を破る。
+愛するが故に、神に刃を向ける。
+愛するが故に、世界の形を疑う。
+愛するが故に、すべてを壊してでも救おうとする。
+
+恋禁䘏を行う者は、金を求めぬ。
+富ではない。名誉ではない。不老不死でもない。
+
+ただ一人の名を求める。
+
+その者を救いたい。その者を失いたくない。
+
+その願いが深すぎる時、瘂為（声なき愛）は術となる。
+声なき為は、禁断の方へ手を伸ばす。
+
+救いたいという願いは、やがて世界そのものを敵と見なす。
+この世界が彼を傷つけるなら、世界を壊す。
+この理が彼を救わぬなら、理を破る。
+この神が彼を見捨てるなら、神を越える。`,
+    gakuchu:
+`恋に狂う者を笑うな。
+
+恋は、人を深く人にする。
+されど同時に、人を人の外へ押し出す。
+
+恋禁䘏を学ぶ者は、まず己に問え。
+
+汝は、その者を救いたいのか。
+その者を失いたくないだけか。
+その者の苦しみを終わらせたいのか。
+その者のいない世界に耐えられぬのか。
+
+愛は鼓動である。
+されど、鼓動が暴れれば、胸は裂ける。
+
+恋禁䘏とは、裂けた胸より伸びる手である。
+
+その手が誰かを救うか、世界を壊すかは、伸ばした者にも分からぬ。`
+  },
+
+  {
+    id: 9,
+    name: "隕畫逢抱", reading: "いんがおうほう",
+    giji: "因果応報", img: P+'隕畫逢抱.jpg',
+    def: "隕畫逢抱とは、愛によって世界の因果が抱き締められる瞬間である。",
+    hassei:
+`隕とは、落ちることである。天より堕ち、避けられぬ重力に引かれ、己の行いがどこかへ沈んでいくことである。
+
+畫とは、描くことである。一つの行為が、世界に線を刻み、消えぬ図を残すことである。
+
+逢とは、めぐり逢うことである。逃れたと思ったものと、時を越えて再び向き合うことである。
+
+抱とは、抱くことである。愛し、憎み、救い、壊し、手放せぬものとして胸に抱え込むことである。
+
+人は善悪によって裁かれるのではない。
+
+愛したものに逢う。憎んだものに逢う。奪ったものに逢う。
+救おうとしたものに逢う。殺したものに逢う。捨てたものに逢う。
+そして、それらを抱かされる。
+
+全ては愛へ収束する。
+されど、その愛は清きものとは限らぬ。
+
+愛は産む。愛は育てる。愛は憎む。愛は奪う。愛は殺す。愛は赦す。愛はまた孕む。`,
+    gakuchu:
+`余は、因果を単なる裁きとは見ぬ。
+
+人は裁かれるためだけに生きているのではない。
+人は、逢うために生きている。
+
+かつて愛した者と。かつて傷つけた者と。かつて見捨てた者と。
+かつて救えなかった者と。かつて己が殺したものと。かつて己を救ったものと。
+
+人は、いつか逢う。そして逢った時、問われる。
+
+汝は、それを抱けるか。
+
+隕畫逢抱とは、善悪の帳尻合わせではない。
+すべての因果が、愛という逃れがたい重力へ落ちていくことである。`
+  },
+
+  {
+    id: 10,
+    name: "天外", reading: "てんがい",
+    giji: "宇宙", img: P+'神降臨.jpg',
+    def: "天外とは、魂が逝く場所である。そこへ肉体を持ったまま至る者を、神と称す。",
+    hassei:
+`空には果てがある。
+
+鳥は空を渡る。竜は空を支配する。雲は空を流れ、雷は空を裂き、星は空の奥に灯る。
+
+人は長く、空を見上げた。
+
+ある時代、人々は知った。空の外がある、と。
+
+それはただの暗き虚空ではなかった。星々の海であり、魂の帰る場所であり、生者が本来踏み入ることを許されぬ境であった。
+
+人は死して、そこへ逝く。
+
+この定義は、多くの者を狂わせた。
+
+王は空を欲した。竜を落とし、空を奪い、さらにその外へ至ろうとした。
+死者の道を、生者の足で踏むために。
+
+司祭は恐れた。
+人が天外へ至るなら、神と人の境は崩れる。
+王が天外へ至るなら、祈りは王権に喰われる。
+
+民は祈った。死後、天外で恥じぬように。
+
+天外があるゆえに、死は道となった。
+天外があるゆえに、王は神を目指した。
+天外があるゆえに、人は死後の視線を恐れた。`,
+    gakuchu:
+`死者は天外へ逝く。
+
+神は天外へ至る。
+
+されど、最も恐ろしきは、天外へ至らぬまま、己を神と呼び始める者である。
+
+空の外を求める者は、しばしば足元を見ぬ。
+
+その足元に、踏まれた者の名がある。`
+  },
+
+  {
+    id: 11,
+    name: "落淵", reading: "らくえん",
+    giji: "楽園", img: P+'落淵.jpg',
+    def: "楽園とは、問いが眠る場所である。落淵とは、問いが二度と目覚めぬ場所である。",
+    hassei:
+`人は、痛みなき場所を夢見る。
+
+飢えぬ場所。争わぬ場所。失わぬ場所。傷つかぬ場所。問いに苦しまぬ場所。
+
+王は落淵を好んだ。
+
+痛まぬ民は、問いを持たぬ。
+問いを持たぬ民は、支配を疑わぬ。
+支配を疑わぬ民は、志灰の中でも微笑む。
+
+司祭は落淵を楽園と説いた。
+
+「苦しみは終わる。問いは神が預かる。痛みなき眠りこそ救いである。」
+
+それは暴力ではない。命令でもない。鎖ですらない。
+
+それは、柔らかな寝床であった。温かな沈黙であった。
+二度と傷つかぬための、底のない淵であった。
+
+人はそこへ落ちた。
+
+叫ばずに。抗わずに。幸福そうな顔をして。
+
+落淵の恐ろしさは、苦痛にない。
+落ちている者が、自分は救われていると思うことにある。`,
+    gakuchu:
+`痛みなき世界を願うな、とは言わぬ。
+
+痛みは確かに、人を壊す。
+
+されど、問いまで眠らせる安寧には気をつけよ。
+
+そこは楽園に似ている。
+
+あまりにも、似ている。`
+  },
+
+  {
+    id: 12,
+    name: "解毒", reading: "かいどく",
+    giji: "解読", img: P+'解毒.jpg',
+    def: "解毒とは、言葉に含まれた毒を読み解き、抜こうとする行為である。同時に、封じられていた毒を世界へ解き放つ行為でもある。",
+    hassei:
+`文字は、ただ読まれるものではない。
+
+文字は、体内へ入る。目より入り、舌の奥で響き、胸の内でほどけ、記憶に沈み、やがてその者の世界の見方を変える。
+
+志灰を読んだ者は、支配をただの秩序とは見られなくなる。
+赦射を読んだ者は、赦しの言葉の中に矢を探し始める。
+負痛を読んだ者は、普通という言葉の裏に隠れた痛みに気づく。
+落淵を読んだ者は、楽園の静けさを疑う。
+
+かつて、ある愕奴が一冊の古き辞書を開いた。
+
+正義の下に骨が見えた。慈悲の下に矢が見えた。名誉の下に病が見えた。平穏の下に負痛が見えた。
+
+彼は叫ばなかった。ただ、震えながら余白に記した。
+
+「これは毒である。」
+
+その日より、彼は言葉を信じられなくなった。だが、言葉を捨てることもできなくなった。
+
+解毒とは、そういう行為である。
+
+救いではない。覚醒でもない。正義でもない。
+
+ただ、もう元の無垢には戻れなくなることである。`,
+    gakuchu:
+`古き書を開く時、手を洗う者がいる。
+
+愚かである。
+
+洗うべきは、手ではない。読んだ後の魂である。
+
+されど、魂を洗えば、そこに残った文字まで落ちてしまう。
+
+ゆえに愕奴は、汚れたまま書く。`
+  },
+
+  {
+    id: 13,
+    name: "負痛", reading: "ふつう",
+    giji: "普通", img: P+'負痛.jpg',
+    def: "普通とは、最も見逃されやすい悲鳴である。",
+    hassei:
+`普通とは、痛みがないことではない。
+
+人はそれぞれ、何かを負って生きている。
+
+飢えを負う者。傷を負う者。名を持たぬことを負う者。家族を失ったことを負う者。
+
+彼らは、叫び続けているわけではない。
+
+朝になれば火を起こす。水を汲む。畑へ出る。市場へ向かう。
+子を起こす。傷を布で隠す。泣く時間のないまま、今日の飯を作る。
+
+人々はそれを普通と呼んだ。
+
+王は言った。「民は平穏に暮らしている。」
+
+されど愕奴は町を歩いた。
+
+市場の女は、夫の帰らぬ遠征を語らなかった。
+鍛冶屋の男は、弟がナナシとして連れられたことを語らなかった。
+子は、父の顔を知らぬまま父の剣を磨いた。
+母は、名を与えられなかった子のために、名のない歌を歌った。
+
+誰も叫ばなかった。だから、国は静かだった。
+静けさは痛みの不在ではない。
+倒れぬことは、傷の不在ではない。
+反乱せぬことは、納得の証ではない。`,
+    gakuchu:
+`民が笑っている時、国は安心する。
+
+されど、その笑いが痛みを隠す布であるならば、国はすでに病んでいる。
+
+普通を疑え。
+
+そこには、見えぬ痛みが積まれている。
+
+耐えている者を見て、「まだ大丈夫」と言ってはならぬ。
+黙っている者を見て、「納得している」と言ってはならぬ。`
+  },
+
+  // ─── 挿絵あり（本文未収録） ──────────────────
+
+  {
+    id: 14,
+    name: "天鎧塞交", reading: "てんがいそくこう",
+    giji: null, img: P+'天鎧塞交.png',
+    def: null, hassei: null, gakuchu: null
+  },
+  {
+    id: 15,
+    name: "壯兵殷義", reading: "そうへいあんぎゃ",
+    giji: null, img: P+'壯兵殷義.jpg',
+    def: null, hassei: null, gakuchu: null
+  },
+  {
+    id: 16,
+    name: "降災戮離", reading: "こうさいりくり",
+    giji: null, img: P+'降災戮離.jpg',
+    def: null, hassei: null, gakuchu: null
+  },
+  {
+    id: 17,
+    name: "朱憐焫業", reading: "しゅれんぜつごう",
+    giji: null, img: P+'朱憐焫業.png',
+    def: null, hassei: null, gakuchu: null
+  },
+  {
+    id: 18,
+    name: "天外威驅", reading: "ばんりいっくう",
+    giji: null, img: P+'天外威驅.jpg',
+    def: null, hassei: null, gakuchu: null
+  },
+  {
+    id: 19,
+    name: "死免蘇化", reading: "しめんそか",
+    giji: null, img: P+'死免蘇化.jpg',
+    def: null, hassei: null, gakuchu: null
+  },
+  {
+    id: 20,
+    name: "臨廻典世", reading: "りんかいてんせい",
+    giji: null, img: P+'臨廻典世.png',
+    def: null, hassei: null, gakuchu: null
+  },
+  {
+    id: 21,
+    name: "廃徳", reading: "はいとく",
+    giji: null, img: null,
+    def: null, hassei: null, gakuchu: null
+  },
+  {
+    id: 22,
+    name: "汰違偽", reading: "たいぎ",
+    giji: "大義", img: P+'汰違偽.jpg',
+    def: null, hassei: null, gakuchu: null
+  },
+  {
+    id: 23,
+    name: "壑悶", reading: "がくもん",
+    giji: "学問", img: P+'壑悶.jpg',
+    def: null, hassei: null, gakuchu: null
+  },
+  {
+    id: 24,
+    name: "八罪八学と廊極構造論", reading: "はちざいはちがくとろうきょくこうぞうろん",
+    giji: null, img: null,
+    def: null, hassei: null, gakuchu: null
+  },
+  {
+    id: 25,
+    name: "言語爆縮現象", reading: "げんごばくしゅくげんしょう",
+    giji: null, img: P+'言語.jpg',
+    def: null, hassei: null, gakuchu: null
+  },
+];
+
+/* ━━━ RENDER ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+function renderGrid(data) {
+    const grid      = document.getElementById('grid');
+    const noResults = document.getElementById('noResults');
+    const count     = document.getElementById('count');
+    grid.innerHTML  = '';
+
+    if (!data.length) {
+        noResults.style.display = 'block';
+        count.textContent = '';
+        return;
+    }
+    noResults.style.display = 'none';
+    count.textContent = `${data.length} 件`;
+
+    data.forEach(e => {
+        const el = document.createElement('div');
+        el.className = 'card';
+        el.onclick   = () => openModal(e);
+
+        const num = String(e.id).padStart(3, '0');
+
+        // Image or placeholder
+        const imgHtml = e.img
+            ? `<div class="card-img-wrap">
+                 <img src="${e.img}" alt="${e.name}" loading="lazy" onerror="this.parentElement.style.display='none'">
+                 <div class="card-img-gradient"></div>
+               </div>`
+            : `<div class="card-img-placeholder">${e.name[0]}</div>`;
+
+        // Words
+        const wordsHtml = e.giji
+            ? `<div class="card-giji">偽字　${e.giji}</div>
+               <div class="card-shinji">${e.name}</div>`
+            : '';
+
+        const bodyHtml = e.def
+            ? `<div class="card-def">${e.def}</div>`
+            : `<div class="card-stub">── 未収録 ──</div>`;
+
+        el.innerHTML = `
+            ${imgHtml}
+            <div class="card-body">
+                <div class="card-num">No.${num}</div>
+                <div class="card-name">${e.name}</div>
+                <div class="card-reading">${e.reading}</div>
+                <div class="card-line"></div>
+                ${wordsHtml}
+                ${bodyHtml}
+            </div>
+            <div class="card-arrow">→</div>
+        `;
+        grid.appendChild(el);
+    });
+}
+
+function openModal(e) {
+    // Image
+    const imgWrap = document.getElementById('mImgWrap');
+    if (e.img) {
+        imgWrap.innerHTML = `
+            <div class="m-img-wrap">
+                <img src="${e.img}" alt="${e.name}" onerror="this.parentElement.style.display='none'">
+                <div class="m-img-gradient"></div>
+            </div>`;
+    } else {
+        imgWrap.innerHTML = '';
+    }
+
+    document.getElementById('mName').textContent    = e.name;
+    document.getElementById('mReading').textContent = e.reading;
+
+    // Reveal
+    const rEl = document.getElementById('mReveal');
+    if (e.giji || e.def) {
+        let h = '<div class="m-reveal"><div class="m-label">偽字 → 真字</div>';
+        if (e.giji) {
+            h += `<div class="reveal-row">
+                    <span class="r-giji">${e.giji}</span>
+                    <span class="r-sep">→</span>
+                    <span class="r-shinji">${e.name}</span>
+                  </div>`;
+        }
+        if (e.def) h += `<div class="r-def">${e.def}</div>`;
+        h += '</div>';
+        rEl.innerHTML = h;
+    } else {
+        rEl.innerHTML = '';
+    }
+
+    // Content
+    const cEl = document.getElementById('mContent');
+    if (e.hassei) {
+        let h = `<div class="m-section">
+            <div class="m-label red">── 発生譚 ──</div>
+            <div class="m-text">${e.hassei}</div>`;
+        if (e.gakuchu) {
+            h += `<div class="m-gakuchu">
+                    <div style="font-size:0.62rem;color:var(--crimson);letter-spacing:0.5em;margin-bottom:14px;">── 愕注 ──</div>
+                    ${e.gakuchu}
+                  </div>`;
+        }
+        h += '</div>';
+        cEl.innerHTML = h;
+    } else {
+        cEl.innerHTML = `<div class="m-section"><div class="m-stub">── この幻悟の発生譚は未収録 ──</div></div>`;
+    }
+
+    document.getElementById('overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+    document.getElementById('overlay').classList.remove('open');
+    document.body.style.overflow = '';
+}
+
+document.getElementById('search').addEventListener('input', ev => {
+    const q = ev.target.value.toLowerCase();
+    if (!q) { renderGrid(DATA); return; }
+    renderGrid(DATA.filter(e =>
+        e.name.includes(q)   ||
+        e.reading.includes(q) ||
+        (e.giji   && e.giji.includes(q))   ||
+        (e.def    && e.def.includes(q))    ||
+        (e.hassei && e.hassei.includes(q))
+    ));
+});
+
+document.getElementById('closeBtn').onclick  = closeModal;
+document.getElementById('overlay').onclick   = ev => {
+    if (ev.target === document.getElementById('overlay')) closeModal();
+};
+document.addEventListener('keydown', ev => { if (ev.key === 'Escape') closeModal(); });
+
+renderGrid(DATA);
+</script>
+</body>
+</html>
